@@ -58,15 +58,18 @@ class DialGraph : public Graph {
     DialGraph(void);
     void init(LCDWIKI_KBV* lcd, int16_t x = 0, int16_t y = 0, int16_t radius = 100);
     void setBgColor(uint16_t color);
+    void setTitle(String title);
     void update(bool showValue = true, bool showMin = true, bool showMax = true, bool showUnit = true);
 
   private:
     int16_t getMax();
 
     int16_t radius;
+    String title;
 
-    static const int16_t midleAngle = 112;
-    static float arraysPreCompute[];
+    static const int8_t resolution = 2;
+    static const int8_t midleAngle = 112;
+    static float arraysCache[];
 };
 
 /*

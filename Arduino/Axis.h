@@ -22,7 +22,6 @@ class Axis
     Axis(float value, String unit, float minNorm, float maxNorm);
     Axis(float value, String unit, float minNorm, float maxNorm, uint16_t color);
 
-
     String getFormatString(bool showUnit = true);
     float getValue();
     float getMinValue();

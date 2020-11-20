@@ -7,21 +7,21 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-float DialGraph::arraysPreCompute[180];  // ((midleAngle::112 * 2) / 5) * 4
+float DialGraph::arraysCache[448];  // ((midleAngle::112 * 2) / resolution) * 4
 
 DialGraph::DialGraph() {
   this->axisArray = new Axis * [0];
 
   // Pre compute rad dial graph
   uint16_t j = 0;
-  for (int16_t i = -DialGraph::midleAngle; i < DialGraph::midleAngle; i += 5) {
-    DialGraph::arraysPreCompute[j] = cos((i - 90.0) * DEG2RAD);
+  for (int16_t i = -DialGraph::midleAngle; i < DialGraph::midleAngle; i += resolution) {
+    DialGraph::arraysCache[j] = cos((i - 90.0) * DEG2RAD);
     j++;
-    DialGraph::arraysPreCompute[j] = sin((i - 90.0) * DEG2RAD);
+    DialGraph::arraysCache[j] = sin((i - 90.0) * DEG2RAD);
     j++;
-    DialGraph::arraysPreCompute[j] = cos((i + 5 - 90.0) * DEG2RAD);
+    DialGraph::arraysCache[j] = cos((i + resolution - 90.0) * DEG2RAD);
     j++;
-    DialGraph::arraysPreCompute[j] = sin((i + 5 - 90.0) * DEG2RAD);
+    DialGraph::arraysCache[j] = sin((i + resolution - 90.0) * DEG2RAD);
     j++;
   }
   return;
@@ -44,6 +44,11 @@ void DialGraph::setBgColor(uint16_t color) {
   this->computeGradient(true);
 }
 
+void DialGraph::setTitle(String title) {
+  this->title = title;
+}
+
+
 void DialGraph::update(bool showValue = true, bool showMin = true, bool showMax = true, bool showUnit = true) {
 
   float w = this->radius - (this->radius / 4);
@@ -52,19 +57,19 @@ void DialGraph::update(bool showValue = true, bool showMin = true, bool showMax 
 
   // Draw colour blocks every inc degrees
   uint16_t j = 0;
-  for (int16_t i = -DialGraph::midleAngle; i < DialGraph::midleAngle; i += 5) {
+  for (int16_t i = -DialGraph::midleAngle; i < DialGraph::midleAngle; i += resolution) {
 
     // start
-    uint16_t x0 = (DialGraph::arraysPreCompute[j] * w) + this->posX1;
-    uint16_t y0 = (DialGraph::arraysPreCompute[j + 1] * w) + this->posY1;
-    uint16_t x1 = (DialGraph::arraysPreCompute[j] * this->radius) + this->posX1;
-    uint16_t y1 = (DialGraph::arraysPreCompute[j + 1] * this->radius) + this->posY1;
+    uint16_t x0 = (DialGraph::arraysCache[j] * w) + this->posX1;
+    uint16_t y0 = (DialGraph::arraysCache[j + 1] * w) + this->posY1;
+    uint16_t x1 = (DialGraph::arraysCache[j] * this->radius) + this->posX1;
+    uint16_t y1 = (DialGraph::arraysCache[j + 1] * this->radius) + this->posY1;
 
     // end
-    uint16_t x2 = (DialGraph::arraysPreCompute[j + 2] * w) + this->posX1;
-    uint16_t y2 = (DialGraph::arraysPreCompute[j + 3] * w) + this->posY1;
-    uint16_t x3 = (DialGraph::arraysPreCompute[j + 2] * this->radius) + this->posX1;
-    uint16_t y3 = (DialGraph::arraysPreCompute[j + 3] * this->radius) + this->posY1;
+    uint16_t x2 = (DialGraph::arraysCache[j + 2] * w) + this->posX1;
+    uint16_t y2 = (DialGraph::arraysCache[j + 3] * w) + this->posY1;
+    uint16_t x3 = (DialGraph::arraysCache[j + 2] * this->radius) + this->posX1;
+    uint16_t y3 = (DialGraph::arraysCache[j + 3] * this->radius) + this->posY1;
     j += 4;
 
     if (i < v) { // Fill in coloured segments with 2 triangles
@@ -90,7 +95,8 @@ void DialGraph::update(bool showValue = true, bool showMin = true, bool showMax 
   if (showValue) {
     this->lcd->Set_Text_colour(this->axisArray[0]->getColor());
     this->lcd->Set_Text_Back_colour(this->mainColor);
-    this->lcd->Print_String(this->axisArray[0]->getFormatString(showUnit), this->posX1 - 6, this->posY1);
+    this->lcd->Print_String(this->title, this->posX1 - 8, this->posY1 - 12);
+    this->lcd->Print_String(this->axisArray[0]->getFormatString(showUnit), this->posX1 - 8, this->posY1);
   }
 
 }

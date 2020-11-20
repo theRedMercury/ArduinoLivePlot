@@ -106,6 +106,7 @@ void setup()
   cpuTotalGraph.update(true, false, true, false);
 
   cpuTempGraph.init(&myLcd, 360, 222, 34);
+  cpuTempGraph.setTitle("cpu");
   cpuTempGraph.setPrimaryAxis(cpuTempAxis);
   cpuTempGraph.setBgColor(0x0000);
   cpuTempGraph.update();
@@ -130,6 +131,7 @@ void setup()
   gpuTotalGraph.update(true, false, false, false);
 
   gpuTempGraph.init(&myLcd, 440, 222, 34);
+  gpuTempGraph.setTitle("gpu");
   gpuTempGraph.setPrimaryAxis(gpuTempAxis);
   gpuTempGraph.setBgColor(0x0000);
   gpuTempGraph.update();
@@ -153,18 +155,22 @@ void setup()
   fan1Graph.init(&myLcd, 36, 222, 34);
   fan1Graph.setPrimaryAxis(fan1Axis);
   fan1Graph.setBgColor(0x0000);
+  fan1Graph.setTitle("cpu");
 
   fan2Graph.init(&myLcd, 112, 222, 34);
   fan2Graph.setPrimaryAxis(fan2Axis);
   fan2Graph.setBgColor(0x0000);
+  fan2Graph.setTitle("fan2");
 
   fan3Graph.init(&myLcd, 188, 222, 34);
   fan3Graph.setPrimaryAxis(fan3Axis);
   fan3Graph.setBgColor(0x0000);
+  fan3Graph.setTitle("fan3");
 
   fan4Graph.init(&myLcd, 264, 222, 34);
   fan4Graph.setPrimaryAxis(fan4Axis);
   fan4Graph.setBgColor(0x0000);
+  fan4Graph.setTitle("gpu");
 }
 
 void loop()
