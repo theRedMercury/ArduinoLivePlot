@@ -194,59 +194,58 @@ void loop()
       cpuPowerAxis->setValue(getValueStr(msgS, 2, ';').toFloat());
       cpuVoltAxis->setValue(getValueStr(msgS, 3, ';').toFloat());
       cpu3VoltAxis->setValue(getValueStr(msgS, 4, ';').toFloat());
-
+      msgS = "";
 
       cpuTotalGraph.update(true, false, true, false);
       cpuTempGraph.update();
       cpuPowerGraph.update();
       cpuVoltGraph.update();
       cpu3VoltGraph.update();
-      msgS = "";
+      
     }
 
     if (msgS.startsWith("gpu:")) {
       msgS = getValueStr(msgS, 1, ':');
-
       gpuTotalAxis->setValue(getValueStr(msgS, 0, ';').toFloat());
       gpuTempAxis->setValue(getValueStr(msgS, 1, ';').toFloat());
       gpuPowerAxis->setValue(getValueStr(msgS, 2, ';').toFloat());
-
+      msgS = "";
+      
       gpuTotalGraph.update(true, false, false, false);
       gpuTempGraph.update();
       gpuPowerGraph.update();
-      msgS = "";
+      
     }
 
     if (msgS.startsWith("mem:")) {
       msgS = getValueStr(msgS, 1, ':');
-
       ramAxis->setValue(getValueStr(msgS, 0, ';').toFloat());
-      ramGraph.update(true, false, false, false);
       msgS = "";
+      
+      ramGraph.update(true, false, false, false);
     }
 
     if (msgS.startsWith("net:")) {
       msgS = getValueStr(msgS, 1, ':');
-
       netR->setValue(getValueStr(msgS, 0, ';').toFloat());
       netS->setValue(getValueStr(msgS, 1, ';').toFloat());
-      networkGraph.update(true, false, false, true);
       msgS = "";
+      
+      networkGraph.update(true, false, false, true);
     }
 
     if (msgS.startsWith("fan:")) {
       msgS = getValueStr(msgS, 1, ':');
-
       fan1Axis->setValue(getValueStr(msgS, 0, ';').toFloat());
       fan2Axis->setValue(getValueStr(msgS, 1, ';').toFloat());
       fan3Axis->setValue(getValueStr(msgS, 2, ';').toFloat());
       fan4Axis->setValue(getValueStr(msgS, 3, ';').toFloat());
-
+      msgS = "";
+      
       fan1Graph.update();
       fan2Graph.update();
       fan3Graph.update();
       fan4Graph.update();
-      msgS = "";
     }
     delay(1);
   }

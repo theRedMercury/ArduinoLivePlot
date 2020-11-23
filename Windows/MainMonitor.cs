@@ -16,8 +16,31 @@ using System.Windows.Forms;
  */
 namespace HardwareMonitorWinIno
 {
+
     class MainMonitor : ApplicationContext
     {
+        private static readonly string[] CPU_LOADS = { "/amdcpu/0/load/1", "/amdcpu/0/load/2", "/amdcpu/0/load/3",
+                                                      "/amdcpu/0/load/4", "/amdcpu/0/load/5", "/amdcpu/0/load/6" };
+        private static readonly string CPU_TEMP = "/amdcpu/0/temperature/0";
+        private static readonly string CPU_PWR = "/amdcpu/0/power/0";
+
+        private static readonly string CPU_VCORE = "/lpc/nct6797d/voltage/0";
+        private static readonly string CPU_V3 = "/lpc/nct6797d/voltage/2";
+        private static readonly string RAM_LOAD = "/ram/load/0";
+
+        private static readonly string GPU_LOAD = "/atigpu/0/load/0";
+        private static readonly string GPU_TEMP = "/atigpu/0/temperature/0";
+        private static readonly string GPU_PWR = "/atigpu/0/power/0";
+
+        private static readonly string CPU_FAN = "/lpc/nct6797d/fan/1";
+        private static readonly string FAN3 = "/lpc/nct6797d/fan/3";
+        private static readonly string FAN4 = "/lpc/nct6797d/fan/4";
+        private static readonly string GPU_FAN = "/atigpu/0/fan/0";
+
+        private static readonly string NETWORK_INT = "Network Interface";
+        private static readonly string NETWORK_BRS = "Bytes Received/sec";
+        private static readonly string NETWORK_BSS = "Bytes Sent/sec";
+
         private readonly Thread mainThread;
         private bool isRunningThread = true;
         private readonly Int32 threadUpdateSleep = 500;
@@ -31,6 +54,7 @@ namespace HardwareMonitorWinIno
         private readonly HardwareMonitorReader hmReader = new HardwareMonitorReader();
         private readonly List<PerformanceCounter> netCounterR = new List<PerformanceCounter>();
         private readonly List<PerformanceCounter> netCounterS = new List<PerformanceCounter>();
+  
 
         public MainMonitor()
         {
@@ -47,10 +71,10 @@ namespace HardwareMonitorWinIno
 
             try
             {
-                foreach (string name in new PerformanceCounterCategory("Network Interface").GetInstanceNames())
+                foreach (string name in new PerformanceCounterCategory(NETWORK_INT).GetInstanceNames())
                 {
-                    this.netCounterR.Add(new PerformanceCounter("Network Interface", "Bytes Received/sec", name));
-                    netCounterS.Add(new PerformanceCounter("Network Interface", "Bytes Sent/sec", name));
+                    this.netCounterR.Add(new PerformanceCounter(NETWORK_INT, NETWORK_BRS, name));
+                    netCounterS.Add(new PerformanceCounter(NETWORK_INT, NETWORK_BSS, name));
                 }
             }
             catch
@@ -109,25 +133,29 @@ namespace HardwareMonitorWinIno
             while (this.isRunningThread)
             {
                 IReadOnlyDictionary<string, double> dictInfo = this.hmReader.GetAllData();
-                double cpuTotal = (dictInfo["/amdcpu/0/load/1"] + dictInfo["/amdcpu/0/load/2"] + dictInfo["/amdcpu/0/load/3"] +
-                                    dictInfo["/amdcpu/0/load/4"] + dictInfo["/amdcpu/0/load/5"] + dictInfo["/amdcpu/0/load/6"]) / 6.0;
+
+                double cpuTotal = 0;
+                foreach (string cpuP in CPU_LOADS)
+                {
+                    cpuTotal += dictInfo[cpuP];
+                }
+                cpuTotal /= Convert.ToDouble(CPU_LOADS.Length);
 
                 this.SendSerialMsg("cpu:" + cpuTotal.ToString(CultureInfo.InvariantCulture) + ";" +
-                                    dictInfo["/amdcpu/0/temperature/0"].ToString(CultureInfo.InvariantCulture) + ";" +
-                                    dictInfo["/amdcpu/0/power/0"].ToString(CultureInfo.InvariantCulture) + ";" +
-                                    dictInfo["/lpc/nct6797d/voltage/0"].ToString(CultureInfo.InvariantCulture) + ";" +
-                                    dictInfo["/lpc/nct6797d/voltage/2"].ToString(CultureInfo.InvariantCulture));  //Load Totat - Temp - Power - VCore -3VCC
+                                    dictInfo[CPU_TEMP].ToString(CultureInfo.InvariantCulture) + ";" +
+                                    dictInfo[CPU_PWR].ToString(CultureInfo.InvariantCulture) + ";" +
+                                    dictInfo[CPU_VCORE].ToString(CultureInfo.InvariantCulture) + ";" +
+                                    dictInfo[CPU_V3].ToString(CultureInfo.InvariantCulture));  //Load Totat - Temp - Power - VCore -3VCC
 
-                this.SendSerialMsg("mem:" + dictInfo["/ram/load/0"].ToString(CultureInfo.InvariantCulture));  // Memory
+                this.SendSerialMsg("mem:" + dictInfo[RAM_LOAD].ToString(CultureInfo.InvariantCulture));  // Memory
 
-                this.SendSerialMsg("gpu:" + dictInfo["/atigpu/0/load/0"].ToString(CultureInfo.InvariantCulture) + ";" +
-                                    dictInfo["/atigpu/0/temperature/0"].ToString(CultureInfo.InvariantCulture) + "; " +
-                                    dictInfo["/atigpu/0/power/0"].ToString(CultureInfo.InvariantCulture));  // Load -  Temp - Power
+                this.SendSerialMsg("gpu:" + dictInfo[GPU_LOAD].ToString(CultureInfo.InvariantCulture) + ";" +
+                                    dictInfo[GPU_TEMP].ToString(CultureInfo.InvariantCulture) + "; " +
+                                    dictInfo[GPU_PWR].ToString(CultureInfo.InvariantCulture));  // Load -  Temp - Power
 
                 this.SendSerialMsg("net:" + this.GetTotalValueCounter(this.netCounterR) + ";" + this.GetTotalValueCounter(this.netCounterS));
 
-                this.SendSerialMsg("fan:" + dictInfo["/lpc/nct6797d/fan/1"] + ";" + dictInfo["/lpc/nct6797d/fan/3"] + ";" + dictInfo["/lpc/nct6797d/fan/4"] + ";" + dictInfo["/atigpu/0/fan/0"]);
-
+                this.SendSerialMsg("fan:" + dictInfo[CPU_FAN] + ";" + dictInfo[FAN3] + ";" + dictInfo[FAN4] + ";" + dictInfo[GPU_FAN]);
 
                 Thread.Sleep(this.threadUpdateSleep);
             }
@@ -149,7 +177,7 @@ namespace HardwareMonitorWinIno
             if (this.serialP != null && this.serialP.IsOpen)
             {
                 msg += ";";
-                // Console.WriteLine(msg);
+                Console.WriteLine(msg);
                 bool send = false;
                 while (!send)
                 {
