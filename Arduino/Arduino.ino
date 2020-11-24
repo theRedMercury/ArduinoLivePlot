@@ -67,19 +67,19 @@ Axis* fan3Axis = new Axis(0.0, "", 0.0, 1200, 0xA534);
 Axis* fan4Axis = new Axis(0.0, "", 0.0, 1800, 0x8C71); // GPU FAN
 
 
-String getValueStr(String data, int index, char separator = ';') {
+String getValueStr(String *data, int index, char separator = ';') {
   int found = 0;
   int strIndex[] = { 0, -1 };
-  int maxIndex = data.length() - 1;
+  int maxIndex = data->length() - 1;
 
   for (int i = 0; i <= maxIndex && found <= index; i++) {
-    if (data.charAt(i) == separator || i == maxIndex) {
+    if (data->charAt(i) == separator || i == maxIndex) {
       found++;
       strIndex[0] = strIndex[1] + 1;
       strIndex[1] = (i == maxIndex) ? i + 1 : i;
     }
   }
-  return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+  return found > index ? data->substring(strIndex[0], strIndex[1]) : "";
 }
 
 void showText(LCDWIKI_KBV* lcd, String txt, uint16_t x, uint16_t y, uint16_t textColor = 0xDEDB, uint16_t textBgColor = 0x0000)
@@ -187,13 +187,13 @@ void loop()
     msgS = Serial.readStringUntil('\r\n');
 
     if (msgS.startsWith("cpu:")) {
-      msgS = getValueStr(msgS, 1, ':');
+      msgS = getValueStr(&msgS, 1, ':');
 
-      cpuTotalAxis->setValue(getValueStr(msgS, 0, ';').toFloat());
-      cpuTempAxis->setValue(getValueStr(msgS, 1, ';').toFloat());
-      cpuPowerAxis->setValue(getValueStr(msgS, 2, ';').toFloat());
-      cpuVoltAxis->setValue(getValueStr(msgS, 3, ';').toFloat());
-      cpu3VoltAxis->setValue(getValueStr(msgS, 4, ';').toFloat());
+      cpuTotalAxis->setValue(getValueStr(&msgS, 0, ';').toFloat());
+      cpuTempAxis->setValue(getValueStr(&msgS, 1, ';').toFloat());
+      cpuPowerAxis->setValue(getValueStr(&msgS, 2, ';').toFloat());
+      cpuVoltAxis->setValue(getValueStr(&msgS, 3, ';').toFloat());
+      cpu3VoltAxis->setValue(getValueStr(&msgS, 4, ';').toFloat());
       msgS = "";
 
       cpuTotalGraph.update(true, false, true, false);
@@ -205,10 +205,10 @@ void loop()
     }
 
     if (msgS.startsWith("gpu:")) {
-      msgS = getValueStr(msgS, 1, ':');
-      gpuTotalAxis->setValue(getValueStr(msgS, 0, ';').toFloat());
-      gpuTempAxis->setValue(getValueStr(msgS, 1, ';').toFloat());
-      gpuPowerAxis->setValue(getValueStr(msgS, 2, ';').toFloat());
+      msgS = getValueStr(&msgS, 1, ':');
+      gpuTotalAxis->setValue(getValueStr(&msgS, 0, ';').toFloat());
+      gpuTempAxis->setValue(getValueStr(&msgS, 1, ';').toFloat());
+      gpuPowerAxis->setValue(getValueStr(&msgS, 2, ';').toFloat());
       msgS = "";
       
       gpuTotalGraph.update(true, false, false, false);
@@ -218,28 +218,28 @@ void loop()
     }
 
     if (msgS.startsWith("mem:")) {
-      msgS = getValueStr(msgS, 1, ':');
-      ramAxis->setValue(getValueStr(msgS, 0, ';').toFloat());
+      msgS = getValueStr(&msgS, 1, ':');
+      ramAxis->setValue(getValueStr(&msgS, 0, ';').toFloat());
       msgS = "";
       
       ramGraph.update(true, false, false, false);
     }
 
     if (msgS.startsWith("net:")) {
-      msgS = getValueStr(msgS, 1, ':');
-      netR->setValue(getValueStr(msgS, 0, ';').toFloat());
-      netS->setValue(getValueStr(msgS, 1, ';').toFloat());
+      msgS = getValueStr(&msgS, 1, ':');
+      netR->setValue(getValueStr(&msgS, 0, ';').toFloat());
+      netS->setValue(getValueStr(&msgS, 1, ';').toFloat());
       msgS = "";
       
       networkGraph.update(true, false, false, true);
     }
 
     if (msgS.startsWith("fan:")) {
-      msgS = getValueStr(msgS, 1, ':');
-      fan1Axis->setValue(getValueStr(msgS, 0, ';').toFloat());
-      fan2Axis->setValue(getValueStr(msgS, 1, ';').toFloat());
-      fan3Axis->setValue(getValueStr(msgS, 2, ';').toFloat());
-      fan4Axis->setValue(getValueStr(msgS, 3, ';').toFloat());
+      msgS = getValueStr(&msgS, 1, ':');
+      fan1Axis->setValue(getValueStr(&msgS, 0, ';').toFloat());
+      fan2Axis->setValue(getValueStr(&msgS, 1, ';').toFloat());
+      fan3Axis->setValue(getValueStr(&msgS, 2, ';').toFloat());
+      fan4Axis->setValue(getValueStr(&msgS, 3, ';').toFloat());
       msgS = "";
       
       fan1Graph.update();
